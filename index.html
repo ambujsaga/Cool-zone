@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saga Cool Zone - Kill The Boredom</title>
+    <style>
+        :root {
+            --bg-color: #0f0f1a;
+            --card-bg: #1e1e30;
+            --accent-color: #ff3366;
+            --accent-glow: rgba(255, 51, 102, 0.4);
+            --text-color: #ffffff;
+            --text-secondary: #a0a0c0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: linear-gradient(45deg, #ff3366, #ff9933);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            font-size: 1.1rem;
+        }
+
+        .main-card {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(255, 51, 102, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .content-area {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .punchline {
+            color: #00ffcc;
+            font-style: italic;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #ff3366, #ff5e3a);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px var(--accent-glow);
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 51, 102, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: space-between;
+            background-color: rgba(255,255,255,0.05);
+            padding: 5px;
+            border-radius: 30px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .tab-btn.active {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .bg-glow {
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            right: -50%;
+            bottom: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,51,102,0.05) 0%, transparent 60%);
+            z-index: -1;
+            animation: float 10s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-glow"></div>
+
+    <div class="container">
+        <h1>Cool Zone</h1>
+        <p class="subtitle">Boring day? Let's fix that instantly.</p>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('dare')">🔥 Do This</button>
+            <button class="tab-btn" onclick="switchTab('riddle')">🧠 Brain Gym</button>
+            <button class="tab-btn" onclick="switchTab('fact')">💡 Weird Fact</button>
+        </div>
+
+        <div class="main-card">
+            <div class="content-area" id="content-display">
+                Loading magic...
+            </div>
+            <div class="punchline" id="punchline-display"></div>
+        </div>
+
+        <button class="btn" id="action-btn" onclick="generateContent()">Next Magic</button>
+    </div>
+
+    <script>
+        let currentTab = 'dare';
+        let currentRiddleAnswer = '';
+
+        function switchTab(tabName) {
+            currentTab = tabName;
+            
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.remove('active'); // Fallback protection
+            if(event && event.target) {
+                event.target.classList.add('active');
+            }
+            
+            document.getElementById('punchline-display').style.display = 'none';
+            
+            const btn = document.getElementById('action-btn');
+            if(tabName === 'riddle') btn.innerText = "Answer / Next";
+            else btn.innerText = "Next Magic";
+
+            generateContent();
+        }
+
+        // Fetching Unlimited Data from Public APIs
+        async function generateContent() {
+            const display = document.getElementById('content-display');
+            const punchline = document.getElementById('punchline-display');
+            const actionBtn = document.getElementById('action-btn');
+            
+            // Riddle logic: Check if user wants to see the answer first
+            if(currentTab === 'riddle' && punchline.style.display === 'none' && currentRiddleAnswer !== '') {
+                punchline.style.display = 'block';
+                actionBtn.innerText = "Next Riddle";
+                return;
+            }
+
+            display.innerText = "✨ Magic Loading...";
+            punchline.style.display = 'none';
+
+            try {
+                if (currentTab === 'dare') {
+                    // Bored API (Generates unlimited activities/tasks)
+                    let response = await fetch('https://bored-api.apphost.page/api/activity');
+                    let data = await response.json();
+                    display.innerText = `🎯 Task: ${data.activity}\n\n[Type: ${data.type.toUpperCase()}]`;
+                    actionBtn.innerText = "Next Magic";
+                } 
+                else if (currentTab === 'fact') {
+                    // Numbers API / Useless Facts API (Generates unlimited cool facts)
+                    let response = await fetch('https://uselessfacts.jsph.pl/api/v2/facts/random');
+                    let data = await response.json();
+                    display.innerText = `💡 Did you know?\n\n"${data.text}"`;
+                    actionBtn.innerText = "Next Magic";
+                } 
+                else if (currentTab === 'riddle') {
+                    // Riddle API (Generates unlimited riddles & answers)
+                    let response = await fetch('https://riddles-api.vercel.app/random');
+                    let data = await response.json();
+                    display.innerText = `🤔 Riddle:\n\n"${data.riddle}"`;
+                    currentRiddleAnswer = data.answer;
+                    punchline.innerText = `💡 Answer: ${currentRiddleAnswer}`;
+                    actionBtn.innerText = "Show Answer";
+                }
+            } catch (error) {
+                display.innerText = "Opps! Network issue. Try again.";
+                console.log(error);
+            }
+        }
+
+        window.onload = function() {
+            generateContent();
+        };
+    </script>
+</body>
+</html>
