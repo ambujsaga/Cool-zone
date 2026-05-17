@@ -163,9 +163,9 @@
         <p class="subtitle">Boring day? Let's fix that instantly.</p>
 
         <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('dare')">🔥 Do This</button>
-            <button class="tab-btn" onclick="switchTab('riddle')">🧠 Brain Gym</button>
-            <button class="tab-btn" onclick="switchTab('fact')">💡 Weird Fact</button>
+            <button class="tab-btn active" onclick="switchTab('dare', event)">🔥 Do This</button>
+            <button class="tab-btn" onclick="switchTab('riddle', event)">🧠 Brain Gym</button>
+            <button class="tab-btn" onclick="switchTab('fact', event)">💡 Weird Fact</button>
         </div>
 
         <div class="main-card">
@@ -182,11 +182,36 @@
         let currentTab = 'dare';
         let currentRiddleAnswer = '';
 
-        function switchTab(tabName) {
+        // Dynamic content generators for unlimited unique combinations
+        const subjects = ["Apne phone", "Apne kisi dost", "Ghar ke sabse bade member", "Agli cheez jo aap dekh rahe ho", "Apne crush", "Apne sabse purane group chat"];
+        const actions = ["ko 10 seconds tak bina ruke ghooro", "ko ek ajeeb sa emoji text karo bina context ke", "ke baare me ek fake afwah socho", "ko left hand se touch karo", "ke liye ek cinematic reel mind me design karo"];
+        const places = ["kitchen me jaakar", "apni chair par baithe-baithe", "aankhein band karke", "slow motion me"];
+
+        const factsPrefix = ["Kya aapko pata hai? ", "Yeh ekdum sach hai: ", "Dimaag hila dene wala fact: ", "Scientists bhi hairan hain ki "];
+        const factsBody = [
+            "Wombats ka poop ekdum cube shape ka hota hai.",
+            "Bananas thode se radioactive hote hain kyunki unme potassium hota hai.",
+            "Insani dimaag utni electricity bana sakta hai jisse ek low-watt LED bulb jal jaye.",
+            "Instagram par sabse zyada liked photo ek simple Ande (Egg) ki hai.",
+            "Vatican City duniya ka sabse chota desh hai, sirf 0.49 sq km.",
+            "Honey (Shahad) kabhi kharab nahi hota, chahe 3000 saal beet jayein.",
+            "Ek octopus ke paas total 3 dimaag aur 9 dils hote hain.",
+            "Siri ya Google Assistant ki aawaz ke piche real insani voice actors hote hain."
+        ];
+
+        const riddlesList = [
+            {q: "Aisi kaun si jagah hai jahan agar 100 log jaate hain to 101 log vapis aate hain?", a: "Shadi ya Baarat! 😂"},
+            {q: "Ek laathi ki suno kahani, jisme bhara hai meetha paani. Kya hai woh?", a: "Ganna (Sugarcane)! 🌾"},
+            {q: "Kone mein rehti hai par poori duniya ghum leti hai. Kaun hai?", a: "Postage Stamp (Ticket)!"},
+            {q: "Woh kya hai jo upar bhi jata hai, neeche bhi aata hai par apni jagah se hilta nahi?", a: "Seedi (Stairs)!"},
+            {q: "Aisa kaun sa fal hai jise hum khareed nahi sakte?", a: "Mehnat ka fal!"},
+            {q: "Kaan hain par sun nahi sakti, aankhein hain par dekh nahi sakti. Batao kaun?", a: "Gudiya (Doll)!"}
+        ];
+
+        function switchTab(tabName, event) {
             currentTab = tabName;
             
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.remove('active'); // Fallback protection
             if(event && event.target) {
                 event.target.classList.add('active');
             }
@@ -200,49 +225,43 @@
             generateContent();
         }
 
-        // Fetching Unlimited Data from Public APIs
-        async function generateContent() {
+        function generateContent() {
             const display = document.getElementById('content-display');
             const punchline = document.getElementById('punchline-display');
             const actionBtn = document.getElementById('action-btn');
             
-            // Riddle logic: Check if user wants to see the answer first
+            // Riddle logic
             if(currentTab === 'riddle' && punchline.style.display === 'none' && currentRiddleAnswer !== '') {
                 punchline.style.display = 'block';
                 actionBtn.innerText = "Next Riddle";
                 return;
             }
 
-            display.innerText = "✨ Magic Loading...";
             punchline.style.display = 'none';
 
-            try {
-                if (currentTab === 'dare') {
-                    // Bored API (Generates unlimited activities/tasks)
-                    let response = await fetch('https://bored-api.apphost.page/api/activity');
-                    let data = await response.json();
-                    display.innerText = `🎯 Task: ${data.activity}\n\n[Type: ${data.type.toUpperCase()}]`;
-                    actionBtn.innerText = "Next Magic";
-                } 
-                else if (currentTab === 'fact') {
-                    // Numbers API / Useless Facts API (Generates unlimited cool facts)
-                    let response = await fetch('https://uselessfacts.jsph.pl/api/v2/facts/random');
-                    let data = await response.json();
-                    display.innerText = `💡 Did you know?\n\n"${data.text}"`;
-                    actionBtn.innerText = "Next Magic";
-                } 
-                else if (currentTab === 'riddle') {
-                    // Riddle API (Generates unlimited riddles & answers)
-                    let response = await fetch('https://riddles-api.vercel.app/random');
-                    let data = await response.json();
-                    display.innerText = `🤔 Riddle:\n\n"${data.riddle}"`;
-                    currentRiddleAnswer = data.answer;
-                    punchline.innerText = `💡 Answer: ${currentRiddleAnswer}`;
-                    actionBtn.innerText = "Show Answer";
-                }
-            } catch (error) {
-                display.innerText = "Opps! Network issue. Try again.";
-                console.log(error);
+            if (currentTab === 'dare') {
+                // Generates mixed random tasks on the fly
+                let sub = subjects[Math.floor(Math.random() * subjects.length)];
+                let act = actions[Math.floor(Math.random() * actions.length)];
+                let plc = places[Math.floor(Math.random() * places.length)];
+                
+                display.innerText = `🎯 Task: ${plc} ${sub} ${act}.`;
+                actionBtn.innerText = "Next Magic";
+            } 
+            else if (currentTab === 'fact') {
+                let pre = factsPrefix[Math.floor(Math.random() * factsPrefix.length)];
+                let body = factsBody[Math.floor(Math.random() * factsBody.length)];
+                
+                display.innerText = `💡 ${pre}\n\n"${body}"`;
+                actionBtn.innerText = "Next Magic";
+            } 
+            else if (currentTab === 'riddle') {
+                let item = riddlesList[Math.floor(Math.random() * riddlesList.length)];
+                
+                display.innerText = `🤔 Paheli:\n\n"${item.q}"`;
+                currentRiddleAnswer = item.a;
+                punchline.innerText = `💡 Jawab: ${currentRiddleAnswer}`;
+                actionBtn.innerText = "Show Answer";
             }
         }
 
